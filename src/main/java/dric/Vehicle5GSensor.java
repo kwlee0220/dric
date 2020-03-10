@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -90,17 +91,26 @@ public class Vehicle5GSensor {
 		long ts = LocalDateTimes.toUtcMillis(LocalDateTime.parse(tmStr, FORMAT));
 		float speed = json.get("speed").getAsFloat();
 		
-		JsonObject jbbox = json.getAsJsonObject("box");
-		int x = jbbox.get("x").getAsInt();
-		int y = jbbox.get("y").getAsInt();
-		int width = jbbox.get("width").getAsInt();
-		int height = jbbox.get("height").getAsInt();
+		JsonArray arr = json.getAsJsonArray("box");
+		int x = arr.get(0).getAsInt();
+		int y = arr.get(1).getAsInt();
+		int width = arr.get(2).getAsInt();
+		int height = arr.get(3).getAsInt();
+		
+//		JsonObject jbbox = json.getAsJsonObject("box");
+//		int x = jbbox.get("x").getAsInt();
+//		int y = jbbox.get("y").getAsInt();
+//		int width = jbbox.get("width").getAsInt();
+//		int height = jbbox.get("height").getAsInt();
 		Envelope bbox = new Envelope(x, x+width, y, y+height);
 		
 		String vtype = json.get("vehicle_type").getAsString();
 		float vtypeScore = json.get("vehicle_score").getAsFloat();
 		long oid = json.get("oid").getAsLong();
-		String dir = json.get("direction").getAsString();
+		JsonArray dirArr = json.getAsJsonArray("direction");
+		float dirX = dirArr.get(0).getAsFloat();
+		float dirY = dirArr.get(1).getAsFloat();
+		String dir = dirX + "," + dirY;
 		
 		return new Vehicle5GSensor(score, uid, ts, speed, bbox, vtype, vtypeScore, oid, dir);
 	}
